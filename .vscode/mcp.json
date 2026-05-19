@@ -1,0 +1,9 @@
+{
+	"servers": {
+		"mcp-developer-dataverse": {
+			"url": "https://orgd1e404bc.crm8.dynamics.com/api/mcp",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}
