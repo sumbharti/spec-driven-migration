@@ -25,6 +25,43 @@ Every custom artifact must have:
 - a retention/maintenance expectation
 - an ALM-friendly publisher prefix and solution layer
 
+## Account Entity Mapping Example
+
+The source Salesforce `Account` metadata in `src/Entity/Account` is mapped to the Dataverse standard `account` table with a small set of custom attributes for business-specific fields that are not already represented by the platform.
+
+Key source artifacts:
+
+- `src/Entity/Account/objects/Account/Account.object-meta.xml`
+- `src/Entity/Account/objects/Account/fields/*.field-meta.xml`
+- `src/Entity/Account/layouts/Account-Account Layout.layout-meta.xml`
+- `src/Apex/classes/AccountSFMigration.cls`
+- `src/Apex/triggers/AccountDuplicatePhoneTrigger.trigger`
+
+Target design principles:
+
+- Use standard `account` table fields for Name, Phone, Fax, Website, Type, Industry, NumberOfEmployees, AnnualRevenue, BillingAddress, ShippingAddress, and ownership.
+- Add custom fields only when business logic requires a Salesforce-specific field, including:
+  - `new_ready_for_ai` for `Ready_for_AI__c`
+  - `new_upsell_opportunity` for `UpsellOpportunity__c`
+  - `new_sla` for `SLA__c`, `new_sla_expiration_date` for `SLAExpirationDate__c`, and `new_sla_serial_number` for `SLASerialNumber__c`
+  - `new_number_of_locations` for `NumberofLocations__c`
+  - `new_customer_priority` for `CustomerPriority__c`
+- Preserve lookup relationships such as parent account via the existing `parentaccountid` lookup.
+
+Form design mapping:
+
+- Map the Salesforce `Account Information` section to a D365 Account main form section with required Name and editable Owner, Parent Account, and AI readiness fields.
+- Map `Additional Information` to a D365 section containing Type, Industry, NumberOfEmployees, and AnnualRevenue.
+- Map `Description Information` to a D365 description section using `description` and a new multiline text field for `AI_Summary__c`.
+- Map `Address Information` to D365 billing/shipping address sections using the built-in address controls.
+- Keep system fields readonly on the form, and add custom links via D365 form navigation or command bar actions rather than Salesforce custom links.
+
+Validation mapping:
+
+- Enforce required Name on the D365 account main form.
+- Enforce duplicate Phone detection as a pre-create plugin on the Account entity.
+- Preserve business rule equivalent validations using Dataverse business rules when possible, and reserve plugin validation for duplicate detection and other event-specific checks.
+
 ## Field Mapping Guidelines
 
 - Salesforce `Text` → Dataverse `Single Line of Text`

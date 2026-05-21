@@ -28,6 +28,9 @@ Define the expected deliverables and artifact boundaries for migrating Salesforc
 - Plugin and shared code must not contain connection strings or secrets.
 - Configuration values should be loaded from environment variables, secure files outside source control, or secure vaults.
 - All Dataverse artifacts must be packaged in a deployable solution with a consistent publisher prefix.
+- Use `new_` as the base publisher prefix for custom Dataverse table and field logical names unless the target environment already enforces another approved prefix.
+- Map standard Salesforce Account fields to the Dataverse Account table whenever possible; create custom tables only for business requirements that cannot be represented by built-in tables.
+- Keep the plugin assembly and solution boundary aligned: the `D365Migration.Plugin` project should contain all implementation classes for this feature, and the solution package should include only this feature's artifacts.
 - Custom entities are allowed only when standard Dataverse tables cannot support the business requirement.
 
 ## Delivery Expectations

@@ -41,3 +41,30 @@ A dedicated Visual Studio solution targeting .NET Framework 4.6.2 will host plug
 - The `src` folder requires discovery and parsing of Salesforce entity metadata, form layouts, validations, Apex classes, and triggers.
 - This plan does not include data migration of existing Salesforce record values.
 - The implementation must enforce publisher prefix discipline and solution boundaries for Dataverse packaging.
+
+## Concrete Mapping Rationale
+
+### Account entity and form mapping
+
+The Salesforce `Account` asset under `src/Entity/Account` is the primary migration target. The D365 implementation should use the standard Account table as the target entity, with custom fields added only for source fields that are not already represented by Dataverse.
+
+- The Salesforce Account form layout is a strong signal for the D365 Account main form sections.
+- Custom fields such as `Ready_for_AI__c`, `UpsellOpportunity__c`, `SLA__c`, `SLAExpirationDate__c`, and `SLASerialNumber__c` should become custom account attributes with clear publisher prefixes.
+- Standard fields like Name, Phone, Fax, Website, Type, Industry, NumberOfEmployees, AnnualRevenue, BillingAddress, and ShippingAddress should map to the Dataverse built-in account attributes.
+
+### Trigger conversion rationale
+
+The `AccountDuplicatePhoneTrigger` validates duplicate phone numbers before insert. This is best represented in D365 as a pre-create Account plugin because:
+
+- The duplicate check depends on a cross-record query during entity creation.
+- Dataverse business rules cannot enforce global uniqueness across existing records with the same flexibility.
+- A plugin preserves the source trigger semantics and is consistent with the targeted `.NET Framework 4.6.2` plugin architecture.
+
+### Apex CRUD conversion rationale
+
+The `AccountSFMigration` Apex class exposes account creation and contact retrieval operations. These should be translated into plugin helper service methods that:
+
+- Create Account records in Dataverse using the standard account table and custom attributes as needed.
+- Validate required business fields such as Account Name at the service boundary.
+- Query related Contacts by account number or account id using D365 query expressions.
+- Surface comparable error handling using plugin exceptions and tracing instead of AuraHandledException.

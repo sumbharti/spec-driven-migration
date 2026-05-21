@@ -22,6 +22,7 @@
 - Add a .NET Framework 4.6.2 plugin project: `D365Migration.Plugin`.
 - Create a single plugin project: `D365Migration.Plugin`.
 - (Optional) Add `D365Migration.Tests` for unit tests of shared helper logic.
+- Keep secure configuration separate from source: `d365-migration/D365Migration.Plugin/app.config` should contain only placeholders and guidance, not secrets.
 
 ## 5. Implement .NET plugin architecture
 

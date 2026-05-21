@@ -1,0 +1,28 @@
+# Visual Studio
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build artifacts
+*.log
+*.tmp
+*.cache
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Visual Studio database files
+*.dbmdl
+*.bak
+
+# NuGet
+*.nupkg
+packages/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt

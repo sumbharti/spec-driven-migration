@@ -27,8 +27,8 @@ Business users need the Salesforce customizations shared in the workspace `src` 
 
 **Acceptance Scenarios**:
 
-1. **Given** the `src` folder contains Salesforce entity definitions and form metadata, **when** the migration design is reviewed, **then** there is a mapped D365 entity and form for each source entity with a documented business rationale.
-2. **Given** a Salesforce validation rule or layout directive in `src`, **when** the D365 artifacts are inspected, **then** the solution includes equivalent field definitions, form properties, business rules, or plugin validations that preserve the business intent.
+1. **Given** the `src/Entity` folder contains Salesforce entity definitions and form metadata, **when** the migration design is reviewed, **then** there is a mapped D365 entity and form for each source entity with a documented business rationale.
+2. **Given** a Salesforce validation rule or layout directive in `src/Entity`, **when** the D365 artifacts are inspected, **then** the solution includes equivalent field definitions, form properties, business rules, or plugin validations that preserve the business intent.
 
 ---
 
@@ -70,7 +70,7 @@ Operations teams need Salesforce trigger logic to run in Dynamics 365 via plugin
 
 ### Functional Requirements
 
-- **FR-001**: The migration process MUST analyze the `src` folder and identify Salesforce custom entities, form layouts, validation rules, Apex classes, and triggers.
+- **FR-001**: The migration process MUST analyze the `src/Entity` folder and identify Salesforce custom entities, form layouts, validation rules, Apex classes, and triggers.
 - **FR-002**: The migration process MUST produce D365 entity definitions and form designs that represent the business intent of the Salesforce metadata.
 - **FR-003**: The migration process MUST map Salesforce validation and layout logic to D365-friendly equivalents such as field definitions, business rules, form scripting, or plugin validation.
 - **FR-004**: The migration process MUST convert Salesforce Apex CRUD classes into .NET plugin service classes in the same plugin project designed for D365 data operations.

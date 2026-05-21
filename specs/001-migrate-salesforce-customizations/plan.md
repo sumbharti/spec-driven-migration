@@ -4,43 +4,40 @@
 
 **Input**: Feature specification from `specs/001-migrate-salesforce-customizations/spec.md`
 
-This plan organizes the migration of Salesforce metadata from the `src` folder into a Dataverse/D365 solution and associated .NET Framework 4.6.2 plugin service classes in the same plugin project.
-
 ## Summary
 
-Migrate Salesforce custom entity definitions, form layouts, and validation logic from the workspace `src` folder into a Dataverse solution. Use Dataverse-first modeling and standard platform constructs wherever possible, while implementing Apex CRUD and trigger behavior as .NET Framework 4.6.2 plugin service classes in the same plugin project. Ensure the result is a solution containing plugin and class implementations that work correctly; Apex plugin deployment will be validated manually outside this plan, and deployment itself is not required as part of the feature.
+Migrate Salesforce custom entity definitions, form layouts, and validation logic from the `src/Entity` schema into a Dataverse/D365 solution design. Prioritize source entity metadata and form creation from `src/Entity` first, then convert Apex CRUD and trigger logic into .NET Framework 4.6.2 plugin service classes in the same plugin project.
 
 ## Technical Context
 
-**Language/Version**: .NET Framework 4.6.2 for plugin service classes in the same plugin project; PowerShell for metadata discovery and authoring workflows.
+**Language/Version**: .NET Framework 4.6.2 for plugin service classes; PowerShell for repository and metadata workflow scripts.
 
-**Primary Dependencies**: Dataverse SDK/CRM SDK tooling, Dynamics 365 Plugin Registration Tool, Visual Studio, Dataverse MCP VS Code extensions, PowerShell.
+**Primary Dependencies**: Microsoft.CrmSdk.CoreAssemblies, Dynamics 365 / Dataverse plugin tooling, Visual Studio, Dataverse solution authoring tools.
 
-**Storage**: Dataverse tables and solution packages for migrated metadata; source metadata remains in `src` as migration input.
+**Storage**: Dataverse solution artifacts, model-driven form definitions, custom entity metadata, and source metadata in `src/Entity`.
 
-**Testing**: Manual verification in a Dataverse sandbox, plugin trace logging, and solution build validation. No unit, integration, or end-to-end tests will be written for this feature. Plugin deployment is not part of this scope.
+**Testing**: Manual validation in a Dataverse sandbox, plugin trace logging, Visual Studio build verification, and documented artifact reviews.
 
-**Target Platform**: Microsoft Dataverse / Dynamics 365 with support for .NET Framework 4.6.2 plugins.
+**Target Platform**: Microsoft Dataverse / Dynamics 365.
 
-**Project Type**: Metadata migration and integration project, with a Visual Studio solution containing plugin service classes in a single plugin project. The package should compile and be ready for manual deployment, but actual plugin deployment is not required by this feature.
+**Project Type**: Metadata migration and plugin integration project with a dedicated Visual Studio solution.
 
-**Performance Goals**: Preserve business intent, minimize custom entity footprint, maintain Dataverse deployability, and support reliable Visual Studio debugging of plugin logic.
+**Performance Goals**: Preserve source business intent with minimal custom entity footprint and maintain deployability through standard Dataverse solution packaging.
 
-**Constraints**: Do not store connection strings or secrets in source code. Prefer standard Dataverse entities before creating custom tables. Maintain strict publisher prefix and solution boundary discipline.
+**Constraints**: No secrets or connection strings stored in source; prefer standard Dataverse tables before creating custom entities; complete entity/form migration before Apex/plugin conversion.
 
-**Scale/Scope**: Salesforce customization metadata in `src`; excludes data value migration and Salesforce security profile conversion.
+**Scale/Scope**: Salesforce metadata under `src/Entity` and related Apex/trigger code in `src`; excludes data value migration and Salesforce security artifacts.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- Pass. This plan follows the constitution by modeling around Dataverse/D365 behavior instead of copying Salesforce metadata literally.
-- It prioritizes platform-native D365 tables, forms, business rules, and plugin patterns.
-- It enforces solution/package discipline and avoids storing secrets in source code.
+- Pass. The plan focuses on Dataverse-first migration, prioritizes platform-native entity/form design, and keeps Apex/plugin conversion as a secondary implementation layer.
 
 ## Project Structure
 
 ### Documentation (this feature)
+
 ```text
 specs/001-migrate-salesforce-customizations/
 ├── plan.md
@@ -53,27 +50,21 @@ specs/001-migrate-salesforce-customizations/
 ```
 
 ### Source Code (repository root)
+
 ```text
 d365-migration/
 ├── D365Migration.sln
-├── D365Migration.Plugin/
-│   ├── D365Migration.Plugin.csproj
-│   ├── Plugin.cs
-│   ├── PluginService.cs
-│   └── app.config
-└── D365Migration.Tests/  # optional future unit tests
+└── D365Migration.Plugin/
+    ├── D365Migration.Plugin.csproj
+    ├── Plugin.cs
+    ├── PluginService.cs
+    ├── CrmService.cs
+    ├── Logging.cs
+    └── app.config
 ```
 
-**Structure Decision**: Create a dedicated Visual Studio solution for the D365 plugin migration implementation. This keeps Salesforce metadata extraction separate from the plugin/solution delivery model and supports Visual Studio debugging.
+**Structure Decision**: Use a dedicated Visual Studio solution for D365 plugin migration, keeping Dataverse entity/form design documentation in `specs/001-migrate-salesforce-customizations/` and code artifacts in `d365-migration/`.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Dedicated Visual Studio solution | Required for .NET Framework 4.6.2 plugin development and debugging | Embedding plugin code directly in the existing workspace would mix source metadata with runtime assemblies and reduce maintainability |
-
-
-
-
-
-
+No constitution violations identified that require special justification. The design uses standard Dataverse migration and plugin patterns.
