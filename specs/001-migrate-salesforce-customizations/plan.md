@@ -26,6 +26,8 @@ Migrate Salesforce custom entity definitions, form layouts, and validation logic
 
 **Constraints**: No secrets or connection strings stored in source; prefer standard Dataverse tables before creating custom entities; complete entity/form migration before Apex/plugin conversion.
 
+**Dataverse Implementation Note**: The Dynamics 365 environment has been probed with Dataverse tools. The standard `account` table already contains the custom fields derived from the Salesforce Account schema, and Account forms are available for mapping and validation.
+
 **Scale/Scope**: Salesforce metadata under `src/Entity` and related Apex/trigger code in `src`; excludes data value migration and Salesforce security artifacts.
 
 ## Constitution Check

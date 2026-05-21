@@ -71,7 +71,7 @@ Operations teams need Salesforce trigger logic to run in Dynamics 365 via plugin
 ### Functional Requirements
 
 - **FR-001**: The migration process MUST analyze the `src/Entity` folder and identify Salesforce custom entities, form layouts, validation rules, Apex classes, and triggers.
-- **FR-002**: The migration process MUST produce D365 entity definitions and form designs that represent the business intent of the Salesforce metadata.
+- **FR-002**: The migration process MUST produce D365 entity schema and form definitions in a Dynamics 365 environment that represent the business intent of the Salesforce metadata.
 - **FR-003**: The migration process MUST map Salesforce validation and layout logic to D365-friendly equivalents such as field definitions, business rules, form scripting, or plugin validation.
 - **FR-004**: The migration process MUST convert Salesforce Apex CRUD classes into .NET plugin service classes in the same plugin project designed for D365 data operations.
 - **FR-005**: The migration process MUST convert Salesforce trigger logic into D365 plugins or other platform-supported event automation constructs.
