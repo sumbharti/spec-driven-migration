@@ -8,6 +8,12 @@
 
 **Input**: User description: "Implement the feature specification based on the updated constitution. I want to migrate the salesforce customizations my IT has shared with me in src folder in the workspace to D365 / Power platform. src would contains entity defintion, form layout, validations which i want to create in d365 as entities, forms. for apex classes and triggers i want to conver them in .net classes for performing crud in d365 and plugins for any trigger based logics."
 
+## Clarifications
+
+### Session 2026-05-21
+
+- Q: Should converted Apex CRUD logic be implemented as plugin helper assemblies or standalone service libraries? → A: A - Implement all converted Apex CRUD logic as standalone service libraries.
+
 ## User Scenarios & Testing
 
 ### User Story 1 - Migrate Salesforce metadata into D365 entities and forms (Priority: P1)
@@ -66,7 +72,7 @@ Operations teams need Salesforce trigger logic to run in Dynamics 365 via plugin
 - **FR-001**: The migration process MUST analyze the `src` folder and identify Salesforce custom entities, form layouts, validation rules, Apex classes, and triggers.
 - **FR-002**: The migration process MUST produce D365 entity definitions and form designs that represent the business intent of the Salesforce metadata.
 - **FR-003**: The migration process MUST map Salesforce validation and layout logic to D365-friendly equivalents such as field definitions, business rules, form scripting, or plugin validation.
-- **FR-004**: The migration process MUST convert Salesforce Apex CRUD classes into .NET classes designed for D365 data operations.
+- **FR-004**: The migration process MUST convert Salesforce Apex CRUD classes into .NET standalone service libraries designed for D365 data operations.
 - **FR-005**: The migration process MUST convert Salesforce trigger logic into D365 plugins or other platform-supported event automation constructs.
 - **FR-006**: The migration process MUST apply consistent naming, publisher prefix, solution boundary, and lifecycle ownership conventions to all D365 artifacts.
 - **FR-007**: The migration process MUST document the mapping rationale for each migrated entity, form, validation, Apex class, and trigger.
