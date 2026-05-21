@@ -12,7 +12,7 @@
 
 ### Session 2026-05-21
 
-- Q: Should converted Apex CRUD logic be implemented as plugin helper assemblies or standalone service libraries? → A: A - Implement all converted Apex CRUD logic as standalone service libraries.
+- Q: Should converted Apex CRUD logic be implemented as plugin helper assemblies or standalone service libraries? → A: A - Implement all converted Apex CRUD logic as .NET plugin service classes in the same plugin project.
 
 ## User Scenarios & Testing
 
@@ -31,17 +31,17 @@ Business users need the Salesforce customizations shared in the workspace `src` 
 
 ---
 
-### User Story 2 - Convert Apex CRUD logic into .NET service classes (Priority: P2)
+### User Story 2 - Convert Apex CRUD logic into .NET plugin service classes in the same plugin project (Priority: P2)
 
-Developers need Salesforce Apex classes that support CRUD flows to be translated into .NET classes suitable for performing D365 data operations.
+Developers need Salesforce Apex classes that support CRUD flows to be translated into .NET plugin service classes in the same plugin project for D365 data operations.
 
-**Why this priority**: Data access and business logic must be preserved after migration; the .NET conversion enables integration with Dynamics data operations.
+**Why this priority**: Data access and business logic must be preserved after migration; the .NET conversion into plugin service classes in the same plugin project enables integration with Dynamics data operations and event handling.
 
-**Independent Test**: Confirm that each Apex class with create/read/update/delete semantics has a corresponding .NET class and that CRUD operations are documented for D365 execution.
+**Independent Test**: Confirm that each Apex class with create/read/update/delete semantics has a corresponding .NET plugin service class in the same plugin project and that CRUD operations are documented for D365 execution.
 
 **Acceptance Scenarios**:
 
-1. **Given** an Apex class in `src` that performs Salesforce CRUD, **when** migration artifacts are reviewed, **then** there is a .NET class with the same business operation intent and D365 data handling approach.
+1. **Given** an Apex class in `src` that performs Salesforce CRUD, **when** migration artifacts are reviewed, **then** there is a plugin service class in the same plugin project with the same business operation intent and D365 data handling approach.
 
 ---
 
@@ -72,7 +72,7 @@ Operations teams need Salesforce trigger logic to run in Dynamics 365 via plugin
 - **FR-001**: The migration process MUST analyze the `src` folder and identify Salesforce custom entities, form layouts, validation rules, Apex classes, and triggers.
 - **FR-002**: The migration process MUST produce D365 entity definitions and form designs that represent the business intent of the Salesforce metadata.
 - **FR-003**: The migration process MUST map Salesforce validation and layout logic to D365-friendly equivalents such as field definitions, business rules, form scripting, or plugin validation.
-- **FR-004**: The migration process MUST convert Salesforce Apex CRUD classes into .NET standalone service libraries designed for D365 data operations.
+- **FR-004**: The migration process MUST convert Salesforce Apex CRUD classes into .NET plugin service classes in the same plugin project designed for D365 data operations.
 - **FR-005**: The migration process MUST convert Salesforce trigger logic into D365 plugins or other platform-supported event automation constructs.
 - **FR-006**: The migration process MUST apply consistent naming, publisher prefix, solution boundary, and lifecycle ownership conventions to all D365 artifacts.
 - **FR-007**: The migration process MUST document the mapping rationale for each migrated entity, form, validation, Apex class, and trigger.
@@ -106,3 +106,7 @@ Operations teams need Salesforce trigger logic to run in Dynamics 365 via plugin
 - Salesforce security constructs (profiles, permission sets) are not migrated literally; the existing D365 security model will be used instead.
 - Standard D365 tables and platform capabilities are preferred; custom entities are only created when source business value cannot be mapped to existing D365 tables.
 - Detailed implementation technology choices beyond .NET and D365 plugin patterns are not defined at this specification stage.
+
+
+
+

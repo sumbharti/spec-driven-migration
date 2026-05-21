@@ -17,3 +17,11 @@ Keep naming, publisher prefix, solution boundaries, and ALM conventions strict s
 Specification
 
 Implement the feature specification based on the updated constitution. I want to migrate the I want to migrate salesforce customizations my IT has shared with me in src folder in the workspace to D365 / Power platform. src would contains entity defintion, form layout, validations which i want to create in d365 as entities, forms. for apex classes and triggers i want to conver them in .net classes for performing crud in d365 and plugins for any trigger based logics.
+
+Clarify
+
+/clarify > DONE
+
+Plan
+
+Plan this migration and utilize the dataverse skills of github copilot for metadata like fields, forms, validation etc. for d355. Also for plugins and services in .net use .net framework 4.6.2. create project inside a solution file which can be opened in visual studio and debugged. add proper logs in classes. Donot store connection string or secrets in source code.
