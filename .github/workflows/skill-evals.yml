@@ -1,0 +1,31 @@
+name: Skill Evals
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/plugins/dataverse/**'
+      - '.github/evals/**'
+      - '.github/plugin/marketplace.json'
+
+jobs:
+  static-checks:
+    name: Static skill checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # needed for version_bump_check.py to compare against main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install eval dependencies (tiktoken for CAT-8, pyyaml for CAT-4 STRUCT-05)
+        run: pip install tiktoken pyyaml
+
+      - name: Run static eval suite
+        run: python .github/evals/static_checks.py
+
+      - name: Run version bump check
+        run: python .github/evals/version_bump_check.py --base origin/main
