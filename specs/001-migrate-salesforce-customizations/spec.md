@@ -13,6 +13,7 @@
 ### Session 2026-05-21
 
 - Q: Should converted Apex CRUD logic be implemented as plugin helper assemblies or standalone service libraries? → A: A - Implement all converted Apex CRUD logic as .NET plugin service classes in the same plugin project.
+- Q: Should the feature include plugin deployment automation or only manual deployment validation? → A: A - Manual validation only; plugin deployment is not required.
 
 ## User Scenarios & Testing
 
@@ -79,6 +80,7 @@ Operations teams need Salesforce trigger logic to run in Dynamics 365 via plugin
 - **FR-008**: The migration process MUST ensure all created D365 artifacts are deployable within a standard Dataverse solution.
 - **FR-009**: The migration process MUST treat standard D365 tables and features as preferred targets and only introduce custom entities when justified by business value.
 - **FR-010**: The migration process MUST exclude Salesforce metadata elements that cannot be migrated without a clear target-platform equivalent and document those exceptions.
+- **FR-011**: The migration process MUST produce D365 artifacts and plugin components that are ready for manual deployment validation; automated deployment is not required by this feature.
 
 ### Key Entities
 

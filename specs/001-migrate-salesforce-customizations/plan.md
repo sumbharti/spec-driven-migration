@@ -8,7 +8,7 @@ This plan organizes the migration of Salesforce metadata from the `src` folder i
 
 ## Summary
 
-Migrate Salesforce custom entity definitions, form layouts, and validation logic from the workspace `src` folder into a Dataverse solution. Use Dataverse-first modeling and standard platform constructs wherever possible, while implementing Apex CRUD and trigger behavior as .NET Framework 4.6.2 plugin service classes in the same plugin project. Ensure the result is deployable as a Dataverse solution and debuggable in Visual Studio, with trace logging and secure configuration patterns that do not store secrets in source code.
+Migrate Salesforce custom entity definitions, form layouts, and validation logic from the workspace `src` folder into a Dataverse solution. Use Dataverse-first modeling and standard platform constructs wherever possible, while implementing Apex CRUD and trigger behavior as .NET Framework 4.6.2 plugin service classes in the same plugin project. Ensure the result is a solution containing plugin and class implementations that work correctly; Apex plugin deployment will be validated manually outside this plan, and deployment itself is not required as part of the feature.
 
 ## Technical Context
 
@@ -18,11 +18,11 @@ Migrate Salesforce custom entity definitions, form layouts, and validation logic
 
 **Storage**: Dataverse tables and solution packages for migrated metadata; source metadata remains in `src` as migration input.
 
-**Testing\*\*:\ Manual\ verification\ in\ a\ Dataverse\ sandbox,\ plugin\ trace\ logging,\ and\ solution\ import\ validation\.\ No\ unit,\ integration,\ or\ end-to-end\ tests\ will\ be\ written\ for\ this\ feature\.
+**Testing**: Manual verification in a Dataverse sandbox, plugin trace logging, and solution build validation. No unit, integration, or end-to-end tests will be written for this feature. Plugin deployment is not part of this scope.
 
 **Target Platform**: Microsoft Dataverse / Dynamics 365 with support for .NET Framework 4.6.2 plugins.
 
-**Project Type**: Metadata migration and integration project, with a Visual Studio solution containing plugin service classes in a single plugin project.
+**Project Type**: Metadata migration and integration project, with a Visual Studio solution containing plugin service classes in a single plugin project. The package should compile and be ready for manual deployment, but actual plugin deployment is not required by this feature.
 
 **Performance Goals**: Preserve business intent, minimize custom entity footprint, maintain Dataverse deployability, and support reliable Visual Studio debugging of plugin logic.
 
@@ -71,6 +71,7 @@ d365-migration/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | Dedicated Visual Studio solution | Required for .NET Framework 4.6.2 plugin development and debugging | Embedding plugin code directly in the existing workspace would mix source metadata with runtime assemblies and reduce maintainability |
+
 
 
 
