@@ -15,8 +15,8 @@ Each Salesforce custom object or entity definition should be evaluated against D
 
 Each migrated Salesforce entity should be represented as one of:
 
-- `new_<prefix>_<logicalname>` for a custom Dataverse table
-- `new_<prefix>_<entity>_<field>` for custom fields where needed
+- `crcc0_<logicalname>` for custom fields on standard tables (publisher prefix `crcc0`)
+- `crcc0_<entity>` for custom Dataverse tables when required
 
 Every custom artifact must have:
 
@@ -41,18 +41,20 @@ Target design principles:
 
 - Use standard `account` table fields for Name, Phone, Fax, Website, Type, Industry, NumberOfEmployees, AnnualRevenue, BillingAddress, ShippingAddress, and ownership.
 - Add custom fields only when business logic requires a Salesforce-specific field, including:
-  - `new_ready_for_ai` for `Ready_for_AI__c`
-  - `new_upsell_opportunity` for `UpsellOpportunity__c`
-  - `new_sla` for `SLA__c`, `new_sla_expiration_date` for `SLAExpirationDate__c`, and `new_sla_serial_number` for `SLASerialNumber__c`
-  - `new_number_of_locations` for `NumberofLocations__c`
-  - `new_customer_priority` for `CustomerPriority__c`
+  - `crcc0_readyforai` for `Ready_for_AI__c`
+  - `crcc0_active` for `Active__c`
+  - `crcc0_aisummary` for `AI_Summary__c`
+  - `crcc0_upsellopportunity` for `UpsellOpportunity__c`
+  - `crcc0_sla` for `SLA__c`, `crcc0_slaexpirationdate` for `SLAExpirationDate__c`, and `crcc0_slaserialnumber` for `SLASerialNumber__c`
+  - `crcc0_numberoflocations` for `NumberofLocations__c`
+  - `crcc0_customerpriority` for `CustomerPriority__c`
 - Preserve lookup relationships such as parent account via the existing `parentaccountid` lookup.
 
 Form design mapping:
 
 - Map the Salesforce `Account Information` section to a D365 Account main form section with required Name and editable Owner, Parent Account, and AI readiness fields.
 - Map `Additional Information` to a D365 section containing Type, Industry, NumberOfEmployees, and AnnualRevenue.
-- Map `Description Information` to a D365 description section using `description` and a new multiline text field for `AI_Summary__c`.
+- Map `Description Information` to a D365 description section using `description` and `crcc0_aisummary` for `AI_Summary__c`.
 - Map `Address Information` to D365 billing/shipping address sections using the built-in address controls.
 - Keep system fields readonly on the form, and add custom links via D365 form navigation or command bar actions rather than Salesforce custom links.
 

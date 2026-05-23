@@ -1,0 +1,134 @@
+{
+  "environment": "https://orgd1e404bc.crm8.dynamics.com",
+  "publisherPrefix": "crcc0",
+  "existingCustomAttributes": [
+    {
+      "logicalName": "crcc0_active",
+      "schemaName": "crcc0_Active",
+      "attributeType": "Boolean",
+      "displayName": "Active"
+    },
+    {
+      "logicalName": "crcc0_activename",
+      "schemaName": "crcc0_activeName",
+      "attributeType": "Virtual",
+      "displayName": ""
+    },
+    {
+      "logicalName": "crcc0_aisummary",
+      "schemaName": "crcc0_Aisummary",
+      "attributeType": "Memo",
+      "displayName": "AI Summary"
+    },
+    {
+      "logicalName": "crcc0_customerpriority",
+      "schemaName": "crcc0_Customerpriority",
+      "attributeType": "Picklist",
+      "displayName": "Customer Priority"
+    },
+    {
+      "logicalName": "crcc0_customerpriorityname",
+      "schemaName": "crcc0_customerpriorityName",
+      "attributeType": "Virtual",
+      "displayName": ""
+    },
+    {
+      "logicalName": "crcc0_numberoflocations",
+      "schemaName": "crcc0_Numberoflocations",
+      "attributeType": "Integer",
+      "displayName": "Number of Locations"
+    },
+    {
+      "logicalName": "crcc0_readyforai",
+      "schemaName": "crcc0_Readyforai",
+      "attributeType": "Boolean",
+      "displayName": "Ready for AI"
+    },
+    {
+      "logicalName": "crcc0_readyforainame",
+      "schemaName": "crcc0_readyforaiName",
+      "attributeType": "Virtual",
+      "displayName": ""
+    },
+    {
+      "logicalName": "crcc0_sla",
+      "schemaName": "crcc0_Sla",
+      "attributeType": "Picklist",
+      "displayName": "SLA"
+    },
+    {
+      "logicalName": "crcc0_slaexpirationdate",
+      "schemaName": "crcc0_Slaexpirationdate",
+      "attributeType": "DateTime",
+      "displayName": "SLA Expiration Date"
+    },
+    {
+      "logicalName": "crcc0_slaname",
+      "schemaName": "crcc0_slaName",
+      "attributeType": "Virtual",
+      "displayName": ""
+    },
+    {
+      "logicalName": "crcc0_slaserialnumber",
+      "schemaName": "crcc0_Slaserialnumber",
+      "attributeType": "String",
+      "displayName": "SLA Serial Number"
+    },
+    {
+      "logicalName": "crcc0_upsellopportunity",
+      "schemaName": "crcc0_Upsellopportunity",
+      "attributeType": "Picklist",
+      "displayName": "Upsell Opportunity"
+    },
+    {
+      "logicalName": "crcc0_upsellopportunityname",
+      "schemaName": "crcc0_upsellopportunityName",
+      "attributeType": "Virtual",
+      "displayName": ""
+    }
+  ],
+  "expectedCustomAttributes": [
+    "crcc0_readyforai",
+    "crcc0_active",
+    "crcc0_aisummary",
+    "crcc0_upsellopportunity",
+    "crcc0_customerpriority",
+    "crcc0_sla",
+    "crcc0_slaexpirationdate",
+    "crcc0_slaserialnumber",
+    "crcc0_numberoflocations"
+  ],
+  "missingCustomAttributes": [],
+  "mainForms": [
+    {
+      "formid": "3285dd72-8e56-f111-a825-002248d621cd",
+      "name": "Account - Salesforce Layout",
+      "description": null,
+      "isdefault": null
+    },
+    {
+      "formid": "19e9b2eb-f102-4989-9883-501977e83f57",
+      "name": "Salesforce Migrated Form",
+      "description": "Account main form generated from Salesforce layout.",
+      "isdefault": null
+    },
+    {
+      "formid": "a72c7955-442b-4ea4-9499-b10cd18b4256",
+      "name": "Account for Interactive experience",
+      "description": "Default Interactive experience Account form.",
+      "isdefault": null
+    },
+    {
+      "formid": "b053a39a-041a-4356-acef-ddf00182762b",
+      "name": "Information",
+      "description": "A form for this entity.",
+      "isdefault": null
+    },
+    {
+      "formid": "8448b78f-8f42-454e-8e2a-f8196b0419af",
+      "name": "Account",
+      "description": "Updated default Account form.",
+      "isdefault": null
+    }
+  ]
+}

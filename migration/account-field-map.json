@@ -1,0 +1,379 @@
+{
+  "publisherPrefix": "crcc0",
+  "targetEntity": "account",
+  "solutionName": "AccountMigration",
+  "standardFieldMap": {
+    "Name": "name",
+    "OwnerId": "ownerid",
+    "ParentId": "parentaccountid",
+    "Phone": "telephone1",
+    "Fax": "fax",
+    "Website": "websiteurl",
+    "Type": "customertypecode",
+    "Industry": "industrycode",
+    "NumberOfEmployees": "numberofemployees",
+    "AnnualRevenue": "revenue",
+    "Description": "description",
+    "BillingAddress": "address1_composite",
+    "ShippingAddress": "address2_composite",
+    "CreatedById": "createdby",
+    "LastModifiedById": "modifiedby"
+  },
+  "customFields": [
+    {
+      "salesforceApiName": "Active__c",
+      "dataverseLogicalName": "crcc0_active",
+      "displayName": "Active",
+      "salesforceType": "Picklist",
+      "dataverseType": "bool",
+      "picklistValues": [
+        "No",
+        "Yes"
+      ]
+    },
+    {
+      "salesforceApiName": "AI_Summary__c",
+      "dataverseLogicalName": "crcc0_aisummary",
+      "displayName": "AI Summary",
+      "salesforceType": "Html",
+      "dataverseType": "memo"
+    },
+    {
+      "salesforceApiName": "CustomerPriority__c",
+      "dataverseLogicalName": "crcc0_customerpriority",
+      "displayName": "Customer Priority",
+      "salesforceType": "Picklist",
+      "dataverseType": "picklist",
+      "picklistValues": [
+        "High",
+        "Low",
+        "Medium"
+      ]
+    },
+    {
+      "salesforceApiName": "NumberofLocations__c",
+      "dataverseLogicalName": "crcc0_numberoflocations",
+      "displayName": "Number of Locations",
+      "salesforceType": "Number",
+      "dataverseType": "int"
+    },
+    {
+      "salesforceApiName": "Ready_for_AI__c",
+      "dataverseLogicalName": "crcc0_readyforai",
+      "displayName": "Ready for AI",
+      "salesforceType": "Checkbox",
+      "dataverseType": "bool",
+      "defaultValue": false
+    },
+    {
+      "salesforceApiName": "SLA__c",
+      "dataverseLogicalName": "crcc0_sla",
+      "displayName": "SLA",
+      "salesforceType": "Picklist",
+      "dataverseType": "picklist",
+      "picklistValues": [
+        "Gold",
+        "Silver",
+        "Platinum",
+        "Bronze"
+      ]
+    },
+    {
+      "salesforceApiName": "SLAExpirationDate__c",
+      "dataverseLogicalName": "crcc0_slaexpirationdate",
+      "displayName": "SLA Expiration Date",
+      "salesforceType": "Date",
+      "dataverseType": "date"
+    },
+    {
+      "salesforceApiName": "SLASerialNumber__c",
+      "dataverseLogicalName": "crcc0_slaserialnumber",
+      "displayName": "SLA Serial Number",
+      "salesforceType": "Text",
+      "dataverseType": "string"
+    },
+    {
+      "salesforceApiName": "UpsellOpportunity__c",
+      "dataverseLogicalName": "crcc0_upsellopportunity",
+      "displayName": "Upsell Opportunity",
+      "salesforceType": "Picklist",
+      "dataverseType": "picklist",
+      "picklistValues": [
+        "Maybe",
+        "No",
+        "Yes"
+      ]
+    }
+  ],
+  "picklistOptionValues": {
+    "Active__c": {
+      "No": 100000000,
+      "Yes": 100000001
+    },
+    "CustomerPriority__c": {
+      "High": 100000000,
+      "Low": 100000001,
+      "Medium": 100000002
+    },
+    "SLA__c": {
+      "Gold": 100000000,
+      "Silver": 100000001,
+      "Platinum": 100000002,
+      "Bronze": 100000003
+    },
+    "UpsellOpportunity__c": {
+      "Maybe": 100000000,
+      "No": 100000001,
+      "Yes": 100000002
+    }
+  },
+  "formSections": [
+    {
+      "label": "Account Information",
+      "fields": [
+        {
+          "salesforceField": "OwnerId",
+          "dataverseField": "ownerid",
+          "kind": "standard",
+          "behavior": "Edit"
+        },
+        {
+          "salesforceField": "Name",
+          "dataverseField": "name",
+          "kind": "standard",
+          "behavior": "Required"
+        },
+        {
+          "salesforceField": "ParentId",
+          "dataverseField": "parentaccountid",
+          "kind": "standard",
+          "behavior": "Edit"
+        },
+        {
+          "salesforceField": "Ready_for_AI__c",
+          "dataverseField": "crcc0_readyforai",
+          "kind": "custom",
+          "behavior": "Edit"
+        },
+        {
+          "salesforceField": "Phone",
+          "dataverseField": "telephone1",
+          "kind": "standard",
+          "behavior": "Edit"
+        },
+        {
+          "salesforceField": "Fax",
+          "dataverseField": "fax",
+          "kind": "standard",
+          "behavior": "Edit"
+        },
+        {
+          "salesforceField": "Website",
+          "dataverseField": "websiteurl",
+          "kind": "standard",
+          "behavior": "Edit"
+        }
+      ]
+    },
+    {
+      "label": "Additional Information",
+      "fields": [
+        {
+          "salesforceField": "Type",
+          "dataverseField": "customertypecode",
+          "kind": "standard",
+          "behavior": "Edit"
+        },
+        {
+          "salesforceField": "Industry",
+          "dataverseField": "industrycode",
+          "kind": "standard",
+          "behavior": "Edit"
+        },
+        {
+          "salesforceField": "NumberOfEmployees",
+          "dataverseField": "numberofemployees",
+          "kind": "standard",
+          "behavior": "Edit"
+        },
+        {
+          "salesforceField": "AnnualRevenue",
+          "dataverseField": "revenue",
+          "kind": "standard",
+          "behavior": "Edit"
+        }
+      ]
+    },
+    {
+      "label": "Description Information",
+      "fields": [
+        {
+          "salesforceField": "Description",
+          "dataverseField": "description",
+          "kind": "standard",
+          "behavior": "Edit"
+        },
+        {
+          "salesforceField": "AI_Summary__c",
+          "dataverseField": "crcc0_aisummary",
+          "kind": "custom",
+          "behavior": "Edit"
+        }
+      ]
+    },
+    {
+      "label": "Address Information",
+      "fields": [
+        {
+          "salesforceField": "BillingAddress",
+          "dataverseField": "address1_composite",
+          "kind": "standard",
+          "behavior": "Edit"
+        },
+        {
+          "salesforceField": "ShippingAddress",
+          "dataverseField": "address2_composite",
+          "kind": "standard",
+          "behavior": "Edit"
+        }
+      ]
+    },
+    {
+      "label": "System Information",
+      "fields": [
+        {
+          "salesforceField": "CreatedById",
+          "dataverseField": "createdby",
+          "kind": "standard",
+          "behavior": "Readonly"
+        },
+        {
+          "salesforceField": "LastModifiedById",
+          "dataverseField": "modifiedby",
+          "kind": "standard",
+          "behavior": "Readonly"
+        }
+      ]
+    }
+  ],
+  "listViews": [
+    {
+      "salesforceApiName": "AllAccounts",
+      "dataverseName": "All Accounts (SF)",
+      "filterScope": "Everything",
+      "columns": [
+        {
+          "salesforce": "ACCOUNT.NAME",
+          "dataverse": "name"
+        },
+        {
+          "salesforce": "ACCOUNT.SITE",
+          "dataverse": "address1_line1"
+        },
+        {
+          "salesforce": "ACCOUNT.ADDRESS1_STATE",
+          "dataverse": "address1_stateorprovince"
+        },
+        {
+          "salesforce": "ACCOUNT.PHONE1",
+          "dataverse": "telephone1"
+        },
+        {
+          "salesforce": "ACCOUNT.TYPE",
+          "dataverse": "customertypecode"
+        },
+        {
+          "salesforce": "CORE.USERS.ALIAS",
+          "dataverse": "ownerid"
+        }
+      ],
+      "filters": []
+    },
+    {
+      "salesforceApiName": "MyAccounts",
+      "dataverseName": "My Accounts (SF)",
+      "filterScope": "Mine",
+      "columns": [],
+      "filters": []
+    },
+    {
+      "salesforceApiName": "NewLastWeek",
+      "dataverseName": "New Last Week (SF)",
+      "filterScope": "Everything",
+      "columns": [],
+      "filters": [
+        {
+          "field": "ACCOUNT.CREATED_DATE",
+          "operation": "equals",
+          "value": "LAST_WEEK"
+        }
+      ]
+    },
+    {
+      "salesforceApiName": "NewThisWeek",
+      "dataverseName": "New This Week (SF)",
+      "filterScope": "Everything",
+      "columns": [
+        {
+          "salesforce": "ACCOUNT.NAME",
+          "dataverse": "name"
+        },
+        {
+          "salesforce": "ACCOUNT.SITE",
+          "dataverse": "address1_line1"
+        },
+        {
+          "salesforce": "ACCOUNT.ADDRESS1_STATE",
+          "dataverse": "address1_stateorprovince"
+        },
+        {
+          "salesforce": "ACCOUNT.PHONE1",
+          "dataverse": "telephone1"
+        },
+        {
+          "salesforce": "ACCOUNT.TYPE",
+          "dataverse": "customertypecode"
+        },
+        {
+          "salesforce": "CORE.USERS.ALIAS",
+          "dataverse": "ownerid"
+        }
+      ],
+      "filters": [
+        {
+          "field": "ACCOUNT.CREATED_DATE",
+          "operation": "equals",
+          "value": "THIS_WEEK"
+        }
+      ]
+    },
+    {
+      "salesforceApiName": "PlatinumandGoldSLACustomers",
+      "dataverseName": "Platinum and Gold SLA Customers (SF)",
+      "filterScope": "Everything",
+      "columns": [
+        {
+          "salesforce": "ACCOUNT.NAME",
+          "dataverse": "name"
+        },
+        {
+          "salesforce": "ACCOUNT.SITE",
+          "dataverse": "address1_line1"
+        },
+        {
+          "salesforce": "ACCOUNT.ADDRESS1_STATE",
+          "dataverse": "address1_stateorprovince"
+        },
+        {
+          "salesforce": "ACCOUNT.PHONE1",
+          "dataverse": "telephone1"
+        },
+        {
+          "salesforce": "CORE.USERS.ALIAS",
+          "dataverse": "ownerid"
+        }
+      ],
+      "filters": []
+    }
+  ]
+}
