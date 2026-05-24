@@ -1,0 +1,18 @@
+{
+  "solutionName": "AccountMigration",
+  "publisherPrefix": "crcc0",
+  "entities": [
+    {
+      "entityPackage": "Account",
+      "salesforceObject": "Account",
+      "sourcePath": "src/Entity/Account",
+      "targetTable": "account",
+      "targetTableKind": "standard",
+      "mainLayoutGlob": "Account-Account Layout.layout-meta.xml",
+      "formDisplayName": "Account - Salesforce Layout",
+      "fieldMapPath": "migration/maps/account-field-map.json",
+      "status": "pilot",
+      "constitutionNotes": "Standard account table; custom columns only with crcc0_ prefix."
+    }
+  ]
+}

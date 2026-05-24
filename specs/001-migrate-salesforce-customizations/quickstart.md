@@ -1,50 +1,82 @@
-# Quickstart: Migrate Salesforce Customizations to D365
+# Quickstart: Migrate `src/Entity` to Dataverse
 
-## 1. Review the migration plan
+**Feature**: 001-migrate-salesforce-customizations  
+**Branch**: `001-migrate-salesforce-customizations`
 
-- Open `specs/001-migrate-salesforce-customizations/spec.md` and `specs/001-migrate-salesforce-customizations/plan.md`.
-- Confirm the migration scope: metadata-only migration from `src`, not data value migration.
+`src/Entity/` is a **multi-entity catalog**. **Account** is the first package; additional folders will be added by IT as sibling directories.
 
-## 2. Inspect Salesforce metadata in `src`
+## Prerequisites
 
-- Identify Salesforce custom entities, field definitions, form layouts, validation rules, Apex classes, and triggers.
-- Document which Salesforce objects map to standard Dataverse tables and which require custom Dataverse tables.
+1. Python 3.10+
+2. PAC CLI authenticated (`pac auth list`)
+3. Dataverse plugin per **dv-connect**:
+   - `.github/plugins/dataverse/.env` — `DATAVERSE_URL`, credentials, `SOLUTION_NAME`, `PUBLISHER_PREFIX`
+   - `scripts/auth.py`
 
-## 3. Create the Dataverse solution
+```powershell
+pip install PowerPlatform-Dataverse-Client azure-identity
+```
 
-- Create a new solution in Dataverse for the migrated artifacts.
-- Add custom entities, fields, relationships, forms, business rules, and plugin assembly references as needed.
-- Follow strict publisher prefix and solution layering discipline.
+## Confirm environment
 
-## 4. Create the Visual Studio migration solution
+```powershell
+pac auth list
+pac org who
+```
 
-- Create `d365-migration/D365Migration.sln` at the repository root.
-- Add a .NET Framework 4.6.2 plugin project: `D365Migration.Plugin`.
-- Create a single plugin project: `D365Migration.Plugin`.
-- (Optional) Add `D365Migration.Tests` for unit tests of shared helper logic.
-- Keep secure configuration separate from source: `d365-migration/D365Migration.Plugin/app.config` should contain only placeholders and guidance, not secrets.
+## Migrate one entity (Account pilot)
 
-## 5. Implement .NET plugin architecture
+```powershell
+python migration/setup_solution.py
+python migration/migrate_entity.py --entity Account --steps parse,metadata,form,validate
+```
 
-- Implement trigger and CRUD behavior as Dataverse plugin classes in `D365Migration.Plugin`.
-- Factor reusable Dataverse data access into `D365Migration.Plugin`.
-- Add trace logging through the Dataverse plugin tracing service and shared logging helpers.
-- Do not store connection strings or secrets in source code; use environment configuration or secure key storage.
+Contract output: `migration/maps/account-field-map.json`
 
-## 6. Debug and validate in Visual Studio
+Legacy wrappers (`parse_sf_account.py`, `apply_account_*`, `validate_migration.py`) call the same `migration/lib/` code.
 
-- Build the solution in Visual Studio.
-- Use the plugin registration tool to deploy the plugin assembly to your Dataverse environment.
-- Attach the debugger to the Dataverse process or use Visual Studio debugging support for plugin execution.
+## Migrate all entities
 
-## 7. Validate deployment and artifacts
+```powershell
+python migration/migrate_entity.py --entity all --steps parse,metadata,form,validate
+python migration/validate_all.py
+```
 
-- Import the Dataverse solution and verify entity, form, and plugin registration deployment.
-- Test migrated business rules and event logic against the target entities.
-- Confirm that trace logging is available and that no secrets are committed to source code.
+Driven by `entity-registry.json` and folders under `src/Entity/`.
 
-## 8. Next step: generate tasks
+## Onboard a new entity package
 
-- After the plan is validated, run `/speckit.tasks` to turn this design into executable implementation tasks.
+When IT adds `src/Entity/{NewPackage}/`:
 
+1. Verify structure: `objects/{SfObject}/fields/`, `layouts/*.layout-meta.xml`
+2. Add entry to `migration/entity-registry.json` (constitution: standard vs custom table)
+3. Add field mapping config for that object (explicit maps in parser)
+4. Add section to `specs/.../data-model.md`
+5. Run `python migrate_entity.py --entity {NewPackage}`
+6. Run validate for that entity
+7. Export/unpack solution (once; includes all entities)
 
+## Pull to repo (ALM)
+
+```powershell
+pac solution export --name AccountMigration --path solutions/AccountMigration.zip --managed false --overwrite
+pac solution unpack --zipfile solutions/AccountMigration.zip --folder solutions/AccountMigration --packagetype Unmanaged
+Remove-Item solutions/AccountMigration.zip
+pac solution list-components --solutionUniqueName AccountMigration
+```
+
+Commit `solutions/AccountMigration/`, `migration/entity-registry.json`, and `migration/maps/*.json`.
+
+## Skills (`.github/plugins/dataverse`)
+
+| Step | Skill |
+|------|-------|
+| Connect | dv-connect |
+| Solution / export | dv-solution |
+| Columns / tables | dv-metadata |
+| Forms | dv-metadata → forms-and-views.md |
+| Verify | dv-query |
+
+## Out of scope
+
+- List views, web links, `src/Apex`, record data

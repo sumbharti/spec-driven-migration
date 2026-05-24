@@ -1,98 +1,131 @@
-# Data Model: Salesforce → D365 Migration Mapping
+# Data Model: Salesforce Entity Packages → Dataverse
 
-## Conceptual Entities
+**Feature**: 001-migrate-salesforce-customizations  
+**Source catalog**: `src/Entity/` (multi-entity; grows as IT adds folders)  
+**Solution**: **AccountMigration** (umbrella; prefix `crcc0_`)  
+**Registry**: `migration/entity-registry.json` (planned)
 
-The migration is driven by the Salesforce metadata inside `src`.
-Each Salesforce custom object or entity definition should be evaluated against Dataverse platform capabilities and mapped to one of these target constructs:
+## Entity package index
 
-- **Standard Dataverse table**: Use when Salesforce business intent matches an existing Dataverse table.
-- **Custom Dataverse table**: Use only when business value cannot be represented by standard tables.
-- **Lookup relationships**: Map Salesforce lookup/master-detail to Dataverse lookup fields and 1:N / N:1 relationships.
-- **Choices / picklists**: Map Salesforce picklists to Dataverse option sets or global choice sets.
-- **Form layout and validations**: Map Salesforce page layouts and validation rules to Dataverse forms, business rules, and plugin validations.
+| Entity package (`src/Entity/…`) | SF object | DV table | Kind | Status | Section |
+|---------------------------------|-----------|----------|------|--------|---------|
+| Account | Account | account | standard | pilot | [Account](#account) |
+| _{Future}_ | _TBD_ | _TBD_ | _TBD_ | planned | Add section when folder exists |
 
-## Entity Pattern
+When onboarding a new package: add a registry row, a section below, and `migration/maps/{package}-field-map.json`.
 
-Each migrated Salesforce entity should be represented as one of:
+---
 
-- `crcc0_<logicalname>` for custom fields on standard tables (publisher prefix `crcc0`)
-- `crcc0_<entity>` for custom Dataverse tables when required
+## Account
 
-Every custom artifact must have:
+**Source**: `src/Entity/Account`  
+**Target**: Standard table `account`
 
-- a clear business rationale
-- an owning team or owner
-- a retention/maintenance expectation
-- an ALM-friendly publisher prefix and solution layer
+## Target platform entity
 
-## Account Entity Mapping Example
+| Concept | Salesforce | Dataverse |
+|---------|------------|-----------|
+| Business object | Account | account (standard) |
+| Primary name | Name | name |
+| Ownership | OwnerId | ownerid |
+| Parent hierarchy | ParentId | parentaccountid |
 
-The source Salesforce `Account` metadata in `src/Entity/Account` is mapped to the Dataverse standard `account` table with a small set of custom attributes for business-specific fields that are not already represented by the platform.
+## Custom columns (in scope)
 
-Key source artifacts:
+All custom fields use publisher prefix `crcc0_` and are packaged in **AccountMigration**.
 
-- `src/Entity/Account/objects/Account/Account.object-meta.xml`
-- `src/Entity/Account/objects/Account/fields/*.field-meta.xml`
-- `src/Entity/Account/layouts/Account-Account Layout.layout-meta.xml`
-- `src/Apex/classes/AccountSFMigration.cls`
-- `src/Apex/triggers/AccountDuplicatePhoneTrigger.trigger`
+| Display name | SF API name | DV logical name | SF type | DV type | Required (field meta) | Picklist values |
+|--------------|-------------|-----------------|---------|---------|----------------------|-----------------|
+| Ready for AI | Ready_for_AI__c | crcc0_readyforai | Checkbox | Boolean | No | — |
+| Active | Active__c | crcc0_active | Picklist | Boolean* | No | No, Yes |
+| AI Summary | AI_Summary__c | crcc0_aisummary | Html | Memo | No | — |
+| Upsell Opportunity | UpsellOpportunity__c | crcc0_upsellopportunity | Picklist | Choice | No | Maybe, No, Yes |
+| Customer Priority | CustomerPriority__c | crcc0_customerpriority | Picklist | Choice | No | High, Low, Medium |
+| SLA | SLA__c | crcc0_sla | Picklist | Choice | No | Gold, Silver, Platinum, Bronze |
+| SLA Expiration Date | SLAExpirationDate__c | crcc0_slaexpirationdate | Date | DateTime | No | — |
+| SLA Serial Number | SLASerialNumber__c | crcc0_slaserialnumber | Text | String | No | — |
+| Number of Locations | NumberofLocations__c | crcc0_numberoflocations | Number | Whole Number | No | — |
 
-Target design principles:
+\* **Active** is a documented transformation: Salesforce picklist → Dataverse boolean for simplified UX (see research.md).
 
-- Use standard `account` table fields for Name, Phone, Fax, Website, Type, Industry, NumberOfEmployees, AnnualRevenue, BillingAddress, ShippingAddress, and ownership.
-- Add custom fields only when business logic requires a Salesforce-specific field, including:
-  - `crcc0_readyforai` for `Ready_for_AI__c`
-  - `crcc0_active` for `Active__c`
-  - `crcc0_aisummary` for `AI_Summary__c`
-  - `crcc0_upsellopportunity` for `UpsellOpportunity__c`
-  - `crcc0_sla` for `SLA__c`, `crcc0_slaexpirationdate` for `SLAExpirationDate__c`, and `crcc0_slaserialnumber` for `SLASerialNumber__c`
-  - `crcc0_numberoflocations` for `NumberofLocations__c`
-  - `crcc0_customerpriority` for `CustomerPriority__c`
-- Preserve lookup relationships such as parent account via the existing `parentaccountid` lookup.
+## Standard column mappings (referenced in layout)
 
-Form design mapping:
+| SF field | DV logical name | Layout notes |
+|----------|-----------------|--------------|
+| Name | name | Required on layout |
+| OwnerId | ownerid | |
+| ParentId | parentaccountid | |
+| Phone | telephone1 | |
+| Fax | fax | |
+| Website | websiteurl | |
+| Type | customertypecode | |
+| Industry | industrycode | |
+| NumberOfEmployees | numberofemployees | |
+| AnnualRevenue | revenue | |
+| Description | description | |
+| BillingAddress | address1_composite | |
+| ShippingAddress | address2_composite | |
+| CreatedById | createdby | System section |
+| LastModifiedById | modifiedby | System section |
 
-- Map the Salesforce `Account Information` section to a D365 Account main form section with required Name and editable Owner, Parent Account, and AI readiness fields.
-- Map `Additional Information` to a D365 section containing Type, Industry, NumberOfEmployees, and AnnualRevenue.
-- Map `Description Information` to a D365 description section using `description` and `crcc0_aisummary` for `AI_Summary__c`.
-- Map `Address Information` to D365 billing/shipping address sections using the built-in address controls.
-- Keep system fields readonly on the form, and add custom links via D365 form navigation or command bar actions rather than Salesforce custom links.
+Standard fields without DV equivalent in layout (e.g., D&B, channel program fields) are **excluded** from v1 form; listed in exception log when encountered in layout XML.
 
-Validation mapping:
+## Form layout mapping
 
-- Enforce required Name on the D365 account main form.
-- Enforce duplicate Phone detection as a pre-create plugin on the Account entity.
-- Preserve business rule equivalent validations using Dataverse business rules when possible, and reserve plugin validation for duplicate detection and other event-specific checks.
+**Source file**: `src/Entity/Account/layouts/Account-Account Layout.layout-meta.xml`  
+**Target**: Main form `Account - Salesforce Layout` (form type 2) on `account`
 
-## Field Mapping Guidelines
+| SF section label | DV form section | Column layout |
+|------------------|-----------------|---------------|
+| Account Information | Account Information | 2 columns |
+| Additional Information | Additional Information | 2 columns |
+| Address Information | Address Information | 2 columns |
+| Description Information | Description Information | 1 column |
+| System Information | System Information | 2 columns |
 
-- Salesforce `Text` → Dataverse `Single Line of Text`
-- Salesforce `LongTextArea` / `RichTextArea` → Dataverse `Multiple Lines of Text`
-- Salesforce `Checkbox` → Dataverse `Two Options`
-- Salesforce `Picklist` → Dataverse `Choice` / global option set
-- Salesforce `Date` / `DateTime` → Dataverse `Date` / `Date and Time`
-- Salesforce `Lookup` / `Master-Detail` → Dataverse `Lookup`
-- Salesforce `Number` / `Currency` / `Percent` → Dataverse numeric field types
+Field order and `behavior` per section are captured in `migration/maps/account-field-map.json` → `formSections[]`.
 
-## Relationship Modeling
+### Layout exclusions (FR-004)
 
-- Preserve one-to-many relationships using Dataverse 1:N / N:1 relationship metadata.
-- Preserve many-to-many relationships using Dataverse N:N relationships or intersect tables.
-- Map Salesforce parent-child ownership semantics to Dataverse ownership models.
+| Excluded from main form | Reason |
+|-------------------------|--------|
+| Related lists, custom links | Salesforce-only UI; out of spec |
+| `webLinks/*.webLink-meta.xml` | Out of spec |
+| Standard fields in object folder but not on layout | No layout placement (e.g. D&B, channel program fields) |
 
-## Validation and Form Behavior
+## Validation mapping
 
-- Keep form-level field visibility and requiredness where business intent requires it.
-- Implement inline validation with Dataverse business rules when possible.
-- Use plugin validation only when platform rules do not support the required logic or when validation depends on complex event sequencing.
-- Keep form layouts aligned to the source entity’s key data entry patterns while using Dataverse form sections and tabs.
+| Source | Rule | DV enforcement | Status |
+|--------|------|----------------|--------|
+| Layout: Name `Required` | Account name mandatory on edit | Platform `name` + form control `required="true"` via `migration/lib/apply_form.py` | Implemented in code |
+| Field metadata: custom `required=false` | No column-level required | `RequiredLevel: None` in `migration/lib/apply_metadata.py` | Implemented |
+| Field metadata: `required=true` (if added) | Column required on save | `RequiredLevel: ApplicationRequired` | Implemented in code |
+| Layout: `Readonly` | Display-only on form | `disabled="true"` on control | Implemented |
+| Layout: `Required` (non-Name fields) | Form-level required | `required="true"` on control | Implemented in code |
+| SF ValidationRule files | — | N/A | Not in source |
 
-## Entity Discovery
+## Relationships
 
-The first implementation step is to scan `src` for Salesforce entity definitions, layout metadata, Apex classes, and triggers.
-The discovered objects will be mapped into the above constructs and documented in the migration design.
+- **Parent account**: `parentaccountid` lookup to `account` (standard 1:N).
+- No new custom relationships required for Account v1.
 
-## Notes
+## Migration exception log (v1)
 
-- This is a migration model template; exact entity names and fields will be determined during discovery of `src` metadata.
-- The plan assumes that Salesforce metadata is complete enough to infer forms and validation intent.
+| Source artifact | Reason excluded |
+|-----------------|-----------------|
+| `webLinks/*.webLink-meta.xml` | Out of spec (UI integrations) |
+| `listViews/*.listView-meta.xml` | Out of spec (views) |
+| SF fields in object folder not in layout/custom set | No business mapping yet — e.g. `DandbCompanyId`, `DunsNumber`, `NaicsCode`, `ChannelProgramName`, `OperatingHoursId`, `Tier`, `Rating`, `CleanStatus`, `Jigsaw`, `Site`, `Tradestyle`, `YearStarted`, `Sic`, `SicDesc`, `AccountSource`, `IsPartner`, `IsCustomerPortal`, `AccountNumber` |
+| `src/Apex/**` | Out of spec (code migration) |
+
+## Template: new entity package section
+
+Copy when `src/Entity/{EntityPackage}/` is added:
+
+1. **Target platform entity** — SF object → DV table (standard vs custom)
+2. **Custom columns** — table of `*__c` fields
+3. **Standard column mappings** — layout-referenced fields
+4. **Form layout mapping** — sections from main layout XML
+5. **Validation mapping** — field + layout rules
+6. **Relationships** — lookups created or reused
+7. **Migration exception log** — web links, list views, unmapped SF fields

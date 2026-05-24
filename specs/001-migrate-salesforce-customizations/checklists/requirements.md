@@ -1,7 +1,7 @@
-# Specification Quality Checklist: migrate-salesforce-customizations
+# Specification Quality Checklist: Migrate Salesforce Entity Customizations to Dataverse
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: 2026-05-21
+**Created**: 2026-05-23
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -31,5 +31,5 @@
 
 ## Notes
 
-- The spec focuses on metadata migration, not data migration.
-- The target D365 solution should use platform-native constructs and solution packaging discipline.
+- Validation passed on first review (2026-05-23). Spec is scoped to `src/Entity` metadata (fields, layouts, validations) and explicitly excludes Apex, triggers, web links, list views, and data load.
+- Ready for `/speckit-clarify` or `/speckit-plan`.

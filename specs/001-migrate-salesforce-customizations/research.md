@@ -1,70 +1,117 @@
-# Research: D365 Migration Strategy for Salesforce Customizations
+# Research: Salesforce `src/Entity` → Dataverse Metadata Migration
 
-## Decision
+**Feature**: 001-migrate-salesforce-customizations  
+**Date**: 2026-05-23
 
-Use a Dataverse-first migration strategy for Salesforce metadata in the `src` folder.
-The migration will translate Salesforce custom entities, forms, and validation rules into Dataverse entity definitions, form layouts, business rules, and plugin-based validation.
-A dedicated Visual Studio solution targeting .NET Framework 4.6.2 will host plugin/helper assemblies for CRUD and trigger logic.
+## Decision 1: Environment-first metadata authoring
 
-## Rationale
+**Decision**: Create and modify columns, forms, and validation in the target Dataverse environment via API, then export/unpack into `solutions/` with PAC CLI.
 
-- Salesforce metadata must be reinterpreted through the Dataverse/D365 platform model, not copied literally.
-- D365 plugins are the most reliable way to preserve Salesforce trigger semantics and enforce event-driven business logic.
-- Visual Studio and .NET Framework 4.6.2 are required by the user for debugging and plugin compatibility.
-- Trace logging should be implemented via the Dataverse plugin execution context and helper logging classes.
-- Secrets and connection details must not be stored in source; use environment variables or secure configuration services.
+**Rationale**: The `dv-metadata` skill states that the environment validates metadata more reliably than hand-written solution XML. Exported XML from `pac solution unpack` is always schema-valid. The repo already follows this pattern (`migration/` scripts → `solutions/AccountMigration/`).
 
-## Alternatives Considered
+**Alternatives considered**:
+- Hand-author `Entity.xml` / `FormXml` only in repo — rejected due to fragile GUIDs, classids, and opaque import failures.
+- Maker portal only, no repo — rejected; violates ALM and constitution deployable-solution discipline.
 
-- Full Power Automate / workflow automation for trigger logic:
-  - Pros: Low-code, easier to author for simple automations.
-  - Cons: Less precise mapping for Salesforce triggers; harder to maintain with custom code and Visual Studio debugging.
+## Decision 2: Standard table first (Account on `account`)
 
-- Hybrid plugin + Power Automate approach:
-  - Pros: Good for some lightweight automation.
-  - Cons: Adds additional operational patterns and may split logic across tools.
+**Decision**: Map Salesforce **Account** to the standard Dataverse **account** table; add custom columns with publisher prefix `crcc0_` inside the **AccountMigration** solution.
 
-- External .NET service for CRUD and trigger handling:
-  - Pros: Centralized business logic outside Dataverse.
-  - Cons: Less aligned with D365 plugin deployment, debugging, and platform security patterns.
+**Rationale**: Constitution principle *Model for Dataverse / D365 First* and *Minimal Replication* require preferring standard tables. Account is a standard object in both platforms; only custom fields (`*__c`) need new columns.
 
-## Chosen Approach
+**Alternatives considered**:
+- Custom table `crcc0_account` mirroring Salesforce — rejected; duplicates platform capability and increases lifecycle cost.
 
-- Standard D365 tables are preferred before creating custom entities.
-- Salesforce custom objects and metadata will be represented by D365 custom tables only when business value demands it.
-- Apex CRUD logic will be converted into .NET Framework 4.6.2 plugin helper assemblies that execute against Dataverse.
-- Salesforce trigger logic will be converted into D365 plugin classes registered on the equivalent Dataverse entity events.
-- Connection strings and secrets will be excluded from source code and managed through secure configuration.
+## Decision 3: Three-phase migration pipeline (parse → apply → validate → export)
 
-## Observations
+**Decision**: Use a Python pipeline under `migration/`:
 
-- The `src` folder requires discovery and parsing of Salesforce entity metadata, form layouts, validations, Apex classes, and triggers.
-- This plan does not include data migration of existing Salesforce record values.
-- The implementation must enforce publisher prefix discipline and solution boundaries for Dataverse packaging.
+1. **Parse** — `parse_sf_account.py` reads `src/Entity/Account` XML and emits `account-field-map.json` (contract).
+2. **Apply** — idempotent scripts create columns (`apply_account_metadata.py`), main form (`apply_account_form.py`); views script exists but is **out of spec scope**.
+3. **Validate** — `validate_migration.py` checks columns and main form presence.
+4. **Export** — `pac solution export` + `unpack` per `dv-solution` pull-to-repo workflow.
 
-## Concrete Mapping Rationale
+**Rationale**: Separates deterministic parsing from environment mutation; supports re-runs and constitution-compliant ALM.
 
-### Account entity and form mapping
+**Alternatives considered**:
+- Single monolithic script — rejected; harder to test and extend per entity package.
 
-The Salesforce `Account` asset under `src/Entity/Account` is the primary migration target. The D365 implementation should use the standard Account table as the target entity, with custom fields added only for source fields that are not already represented by Dataverse.
+## Decision 4: Tool routing per `.github/plugins/dataverse` skills
 
-- The Salesforce Account form layout is a strong signal for the D365 Account main form sections.
-- Custom fields such as `Ready_for_AI__c`, `UpsellOpportunity__c`, `SLA__c`, `SLAExpirationDate__c`, and `SLASerialNumber__c` should become custom account attributes with clear publisher prefixes.
-- Standard fields like Name, Phone, Fax, Website, Type, Industry, NumberOfEmployees, AnnualRevenue, BillingAddress, and ShippingAddress should map to the Dataverse built-in account attributes.
+**Decision**:
 
-### Trigger conversion rationale
+| Task | Skill / tool |
+|------|----------------|
+| Auth, env confirm | `dv-connect`, `scripts/auth.py`, `.github/plugins/dataverse/.env` |
+| Publisher + solution | `dv-solution` (`setup_solution.py` / SDK) |
+| Custom columns (simple types) | `dv-metadata` — prefer `client.tables.add_columns()` where types match |
+| Picklist, memo, date columns | Web API attribute POST with `MSCRM.SolutionUniqueName` (SDK gap) — `apply_account_metadata.py` pattern |
+| Main forms | Web API `systemforms` + `PublishXml` — `dv-metadata` / `forms-and-views.md` |
+| Layout `Required` / `Readonly` | Form control attributes + column `RequiredLevel` where applicable |
+| Post-change ALM | `dv-solution` export/unpack/commit |
+| Inventory / validation queries | `dv-query` patterns in `env_inventory.py`, `validate_migration.py` |
 
-The `AccountDuplicatePhoneTrigger` validates duplicate phone numbers before insert. This is best represented in D365 as a pre-create Account plugin because:
+**Rationale**: Plugin hard rules: MCP → SDK → Web API. Forms and some attribute types are Web API-only per skill boundaries.
 
-- The duplicate check depends on a cross-record query during entity creation.
-- Dataverse business rules cannot enforce global uniqueness across existing records with the same flexibility.
-- A plugin preserves the source trigger semantics and is consistent with the targeted `.NET Framework 4.6.2` plugin architecture.
+**Alternatives considered**:
+- PAC-only for forms — no reliable `pac` form-create command; Web API is documented standard.
 
-### Apex CRUD conversion rationale
+## Decision 5: Salesforce type → Dataverse column mapping
 
-The `AccountSFMigration` Apex class exposes account creation and contact retrieval operations. These should be translated into plugin helper service methods that:
+**Decision**: Use explicit mapping table in parser (not automatic inference) for custom fields:
 
-- Create Account records in Dataverse using the standard account table and custom attributes as needed.
-- Validate required business fields such as Account Name at the service boundary.
-- Query related Contacts by account number or account id using D365 query expressions.
-- Surface comparable error handling using plugin exceptions and tracing instead of AuraHandledException.
+| Salesforce type | Dataverse attribute | Notes |
+|-------------------|---------------------|-------|
+| Checkbox | Boolean | `Active__c` picklist-as-bool mapped separately where needed |
+| Picklist | Local choice (OptionSet) | Option values assigned stable ints in `picklistOptionValues` |
+| Text | String | Max length from SF metadata when present |
+| Number | Whole Number | |
+| Date | DateTime (date-only usage) | |
+| Html | Memo | Rich text not replicated; plain memo for AI Summary |
+
+**Rationale**: Type mismatches (e.g., SF Picklist stored as DV Boolean for Active) are business decisions requiring documentation, not blind automation.
+
+**Alternatives considered**:
+- Fully automatic type inference — rejected; risks silent semantic loss (constitution business-value principle).
+
+## Decision 6: Validation enforcement strategy
+
+**Decision**:
+
+1. **Field metadata `required=true`** → column `RequiredLevel` = `ApplicationRequired` or `BusinessRequired` on create.
+2. **Layout `behavior=Required`** (e.g., Name) → enforced on form via control `required="true"` (form-level) in addition to column rules where supported.
+3. **Layout `behavior=Readonly`** → control `disabled="true"` on form (existing pattern).
+4. **Explicit SF ValidationRule XML** — none in current `src/Entity`; defer to future spec if added.
+
+**Rationale**: Matches spec FR-006 and available source artifacts. Form-only required fields need form XML, not column metadata alone.
+
+**Alternatives considered**:
+- Business Rules for all required fields — rejected for v1; portal/XAML complexity per `dv-metadata` guidance.
+
+## Decision 7: Multi-entity catalog under `src/Entity/`
+
+**Decision**: Treat `src/Entity/` as a **catalog of entity packages**—one subdirectory per Salesforce object IT shares (Account first; more folders added over time). Use `migration/entity-registry.json` to map each package to its Dataverse target table, form name, and constitution status. Discover packages by scanning for `objects/` + `layouts/` under each child folder.
+
+**Rationale**: Spec assumes additional entity packages (edge case in spec.md). A registry avoids hard-coding Account-only paths and prevents duplicate apply scripts per entity.
+
+**Alternatives considered**:
+- One mega-parser file per new entity — rejected; does not scale.
+- Single combined JSON for all entities — rejected; harder to validate and review per business object.
+
+## Decision 8: Contract file as integration boundary
+
+**Decision**: One machine-readable contract per entity package: `migration/maps/{entityPackage}-field-map.json` (e.g. `account-field-map.json`). Shared schema in [d365-migration-artifact-contract.md](./contracts/d365-migration-artifact-contract.md). Human-readable mapping: `data-model.md` section per entity.
+
+**Rationale**: Enables per-entity validate/apply and stakeholder review sessions (SC-004) without re-parsing XML.
+
+## Decision 9: Out-of-scope artifacts
+
+**Decision**: Do not migrate in this feature: `src/Apex`, web links, list views (scripts may remain for reference), record data, security profiles.
+
+**Rationale**: Aligns with updated `spec.md` scope.
+
+## Open items (implementation)
+
+- Add `migration/entity-registry.json` and `migrate_entity.py --entity all` (Phase 0–1 in plan).
+- Refactor Account scripts into `migration/lib/` before second entity package lands.
+- Extend form apply to set `required="true"` where layout behavior is `Required`.

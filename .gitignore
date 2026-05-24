@@ -12,6 +12,18 @@ obj/
 *.tmp
 *.cache
 
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+
+# Dataverse plugin local secrets
+.github/plugins/dataverse/.env
+
 # OS generated files
 .DS_Store
 Thumbs.db
